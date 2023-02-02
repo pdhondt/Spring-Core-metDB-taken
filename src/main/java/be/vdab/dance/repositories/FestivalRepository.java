@@ -2,11 +2,13 @@ package be.vdab.dance.repositories;
 
 import be.vdab.dance.domain.Festival;
 import be.vdab.dance.exceptions.FestivalNietGevondenException;
+import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 
+import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.util.List;
 
@@ -16,9 +18,11 @@ public class FestivalRepository {
     private final RowMapper<Festival> festivalMapper = (result, rowNum) ->
             new Festival(result.getLong("id"), result.getString("naam"),
                     result.getInt("ticketsBeschikbaar"), result.getBigDecimal("reclameBudget"));
+
     public FestivalRepository(JdbcTemplate template) {
         this.template = template;
     }
+
     public List<Festival> findAll() {
         var sql = """
                 select id, naam, ticketsBeschikbaar, reclameBudget
@@ -27,6 +31,7 @@ public class FestivalRepository {
                 """;
         return template.query(sql, festivalMapper);
     }
+
     public List<Festival> findUitverkocht() {
         var sql = """
                 select id, naam, ticketsBeschikbaar, reclameBudget
@@ -36,6 +41,7 @@ public class FestivalRepository {
                 """;
         return template.query(sql, festivalMapper);
     }
+
     public void delete(long id) {
         var sql = """
                 delete from festivals
@@ -45,6 +51,7 @@ public class FestivalRepository {
             throw new FestivalNietGevondenException(id);
         }
     }
+
     public long create(Festival festival) {
         var sql = """
                 insert into festivals(naam, ticketsBeschikbaar, reclameBudget)
@@ -59,5 +66,37 @@ public class FestivalRepository {
             return statement;
         }, keyHolder);
         return keyHolder.getKey().longValue();
+    }
+
+    public Festival findAndLockById(long id) {
+        try {
+            var sql = """
+                select id, naam, ticketsBeschikbaar, reclameBudget
+                from festivals
+                where id = ?
+                for update
+                """;
+            return template.queryForObject(sql, festivalMapper, id);
+        } catch (IncorrectResultSizeDataAccessException ex) {
+            return null;
+        }
+    }
+
+    public void verhoogReclameBudgetMetBedrag(long id, BigDecimal bedrag) {
+        var sql = """
+                update festivals
+                set reclameBudget = reclameBudget + ?
+                where id = ?
+                """;
+        if (template.update(sql, bedrag, id) == 0) {
+            throw new FestivalNietGevondenException(id);
+        }
+    }
+    public long findAantal() {
+        var sql = """
+                select count(*)
+                from festivals
+                """;
+        return template.queryForObject(sql, Long.class);
     }
 }

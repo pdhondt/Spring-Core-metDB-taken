@@ -1,10 +1,13 @@
 package be.vdab.dance.services;
 
 import be.vdab.dance.domain.Festival;
+import be.vdab.dance.exceptions.FestivalNietGevondenException;
 import be.vdab.dance.repositories.FestivalRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 
 @Service
@@ -27,5 +30,20 @@ public class FestivalService {
     @Transactional
     public long create(Festival festival) {
         return festivalRepository.create(festival);
+    }
+    @Transactional
+    public void annuleerFestivalVerdeelReclameBudgetEnDeleteFestival(long id) {
+        var teAnnulerenFestival = festivalRepository.findAndLockById(id);
+        if (teAnnulerenFestival == null) {
+            throw new FestivalNietGevondenException(id);
+        } else {
+            var teVerdelenBudget = teAnnulerenFestival.getReclameBudget();
+            var aantalResterendeFestivals = festivalRepository.findAantal() - 1;
+            var bedrag = teVerdelenBudget.divide(BigDecimal.valueOf(aantalResterendeFestivals),
+                    2, RoundingMode.HALF_UP);
+            festivalRepository.findAll().forEach(festival ->
+                    festivalRepository.verhoogReclameBudgetMetBedrag(festival.getId(), bedrag));
+        }
+        festivalRepository.delete(id);
     }
 }
