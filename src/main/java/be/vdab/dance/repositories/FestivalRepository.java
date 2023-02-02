@@ -11,6 +11,7 @@ import org.springframework.stereotype.Repository;
 import java.math.BigDecimal;
 import java.sql.PreparedStatement;
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public class FestivalRepository {
@@ -68,7 +69,7 @@ public class FestivalRepository {
         return keyHolder.getKey().longValue();
     }
 
-    public Festival findAndLockById(long id) {
+    public Optional<Festival> findAndLockById(long id) {
         try {
             var sql = """
                 select id, naam, ticketsBeschikbaar, reclameBudget
@@ -76,9 +77,9 @@ public class FestivalRepository {
                 where id = ?
                 for update
                 """;
-            return template.queryForObject(sql, festivalMapper, id);
+            return Optional.of(template.queryForObject(sql, festivalMapper, id));
         } catch (IncorrectResultSizeDataAccessException ex) {
-            return null;
+            return Optional.empty();
         }
     }
 

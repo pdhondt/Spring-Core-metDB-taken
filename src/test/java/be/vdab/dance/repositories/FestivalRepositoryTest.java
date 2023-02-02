@@ -56,12 +56,11 @@ public class FestivalRepositoryTest extends AbstractTransactionalJUnit4SpringCon
     @Test
     void findAndLockById() {
         assertThat(festivalRepository.findAndLockById(idVanTestFestival1()))
-                .extracting(Festival::getNaam)
-                .isEqualTo("Rock Werchter");
+                .hasValueSatisfying(festival -> assertThat(festival.getNaam()).isEqualTo("Rock Werchter"));
     }
     @Test
-    void findByOnbestaandeIdVindtGeenFestival() {
-        assertThat(festivalRepository.findAndLockById(Long.MAX_VALUE)).isNull();
+    void findAndLockByOnbestaandeIdVindtGeenFestival() {
+        assertThat(festivalRepository.findAndLockById(Long.MAX_VALUE)).isEmpty();
     }
     @Test
     void verhoogReclameBudgetMetBedrag() {

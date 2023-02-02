@@ -23,6 +23,7 @@ public class MyRunner implements CommandLineRunner {
         var teAnnulerenId = scanner.nextLong();
         try {
             festivalService.annuleerFestivalVerdeelReclameBudgetEnDeleteFestival(teAnnulerenId);
+            System.out.println("Festival geannuleerd");
         } catch (FestivalNietGevondenException ex) {
             System.err.println("Festival met id " + ex.getId() + " niet gevonden");
         }
