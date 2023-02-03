@@ -77,5 +77,17 @@ public class FestivalRepositoryTest extends AbstractTransactionalJUnit4SpringCon
     void findAantalGeeftHetAantalFestivals() {
         assertThat(festivalRepository.findAantal()).isEqualTo(countRowsInTable(FESTIVALS));
     }
+    @Test
+    void updateTickets() {
+        var id = idVanTestFestival1();
+        var testFestival = new Festival(id, "testFestival", 500, BigDecimal.TEN);
+        festivalRepository.update(testFestival);
+        assertThat(countRowsInTableWhere(FESTIVALS, "naam = 'testFestival' and ticketsBeschikbaar = 500 and id = " + id)).isOne();
+    }
+    @Test
+    void updateTicketsOnbestaandFestivalGeeftEenFout() {
+        assertThatExceptionOfType(FestivalNietGevondenException.class).isThrownBy(
+                () -> festivalRepository.update(new Festival(Long.MAX_VALUE, "testFestival2", 100, BigDecimal.TEN)));
+    }
 
 }

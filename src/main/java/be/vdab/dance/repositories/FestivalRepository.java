@@ -100,4 +100,14 @@ public class FestivalRepository {
                 """;
         return template.queryForObject(sql, Long.class);
     }
+    public void update(Festival festival) {
+        var sql = """
+                update festivals
+                set naam = ?, ticketsBeschikbaar = ?
+                where id = ?
+                """;
+        if (template.update(sql, festival.getNaam(), festival.getTicketsBeschikbaar(), festival.getId()) == 0) {
+            throw new FestivalNietGevondenException(festival.getId());
+        }
+    }
 }
