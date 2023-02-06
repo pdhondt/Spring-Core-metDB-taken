@@ -24,6 +24,10 @@ public class BoekingRepositoryTest extends AbstractTransactionalJUnit4SpringCont
         return jdbcTemplate.queryForObject(
                 "select id from festivals where naam = 'Rock Werchter'", Long.class);
     }
+    private long idVanTestBoeking1() {
+        return jdbcTemplate.queryForObject(
+                "select id from boekingen where naam = 'test1'", Long.class);
+    }
 
     @Test
     void create() {
@@ -43,5 +47,21 @@ public class BoekingRepositoryTest extends AbstractTransactionalJUnit4SpringCont
                 .get();
         assertThat(rijMetTest1Boeking.aantalTickets()).isEqualTo(1);
         assertThat(rijMetTest1Boeking.naamFestival()).isEqualTo("Rock Werchter");
+    }
+    @Test
+    void delete() {
+        var id = idVanTestBoeking1();
+        boekingRepository.delete(id);
+        assertThat(countRowsInTableWhere(BOEKINGEN, "id = " + id)).isZero();
+    }
+    @Test
+    void findAndLockById() {
+        assertThat(boekingRepository.findAndLockById(idVanTestBoeking1()))
+                .hasValueSatisfying(boeking ->
+                        assertThat(boeking.getNaam()).isEqualTo("test1"));
+    }
+    @Test
+    void findAndLockByOnbestaandeIdVindtGeenBoeking() {
+        assertThat(boekingRepository.findAndLockById(Long.MAX_VALUE)).isEmpty();
     }
 }

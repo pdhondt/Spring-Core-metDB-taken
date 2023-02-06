@@ -2,6 +2,7 @@ package be.vdab.dance.services;
 
 import be.vdab.dance.domain.Boeking;
 import be.vdab.dance.domain.Festival;
+import be.vdab.dance.exceptions.BoekingNietGevondenException;
 import be.vdab.dance.exceptions.FestivalNietGevondenException;
 import be.vdab.dance.exceptions.OnvoldoendeTicketsBeschikbaarException;
 import be.vdab.dance.repositories.BoekingRepository;
@@ -53,5 +54,23 @@ public class BoekingServiceTest {
         verify(festivalRepository).update(testFestival);
         verify(boekingRepository).create(boeking);
 
+    }
+    @Test
+    void annuleerBoeking() {
+        var boeking = new Boeking(1, "mie", 3, 1);
+        var festival = new Festival(1, "ballroom", 2, BigDecimal.TEN);
+        when(boekingRepository.findAndLockById(1)).thenReturn(Optional.of(boeking));
+        when(festivalRepository.findAndLockById(1)).thenReturn(Optional.of(festival));
+        boekingService.annuleerBoeking(1);
+        assertThat(festival.getTicketsBeschikbaar()).isEqualTo(5);
+        verify(boekingRepository).findAndLockById(1);
+        verify(festivalRepository).findAndLockById(1);
+        verify(boekingRepository).delete(1);
+        verify(festivalRepository).update(festival);
+    }
+    @Test
+    void annuleerMetOnbestaandeBoekingIdMislukt() {
+        assertThatExceptionOfType(BoekingNietGevondenException.class).isThrownBy(
+                () -> boekingService.annuleerBoeking(1));
     }
 }

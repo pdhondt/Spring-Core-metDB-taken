@@ -1,6 +1,7 @@
 package be.vdab.dance.services;
 
 import be.vdab.dance.domain.Boeking;
+import be.vdab.dance.exceptions.BoekingNietGevondenException;
 import be.vdab.dance.exceptions.FestivalNietGevondenException;
 import be.vdab.dance.exceptions.OnvoldoendeTicketsBeschikbaarException;
 import be.vdab.dance.repositories.BoekingRepository;
@@ -15,7 +16,7 @@ import static org.assertj.core.api.Assertions.*;
 
 @JdbcTest
 @Import({BoekingService.class, BoekingRepository.class, FestivalRepository.class})
-@Sql("/festivals.sql")
+@Sql({"/festivals.sql", "/boekingen.sql"})
 public class BoekingServiceIntegrationTest extends AbstractTransactionalJUnit4SpringContextTests {
     private static final String BOEKINGEN = "boekingen";
     private static final String FESTIVALS = "festivals";
@@ -27,6 +28,10 @@ public class BoekingServiceIntegrationTest extends AbstractTransactionalJUnit4Sp
     private long idVanTestFestival1() {
         return jdbcTemplate.queryForObject(
                 "select id from festivals where naam = 'Rock Werchter'", Long.class);
+    }
+    private long idVanTestBoeking1() {
+        return jdbcTemplate.queryForObject(
+                "select id from boekingen where naam = 'test1'", Long.class);
     }
     @Test
     void boekTickets() {
@@ -47,5 +52,18 @@ public class BoekingServiceIntegrationTest extends AbstractTransactionalJUnit4Sp
         var testFestivalId = idVanTestFestival1();
         assertThatExceptionOfType(OnvoldoendeTicketsBeschikbaarException.class).isThrownBy(
                 () -> boekingService.boekTickets(new Boeking("Peter", 5001, testFestivalId)));
+    }
+    @Test
+    void annuleerBoekingVoorEenOnbestaandeBoekingMislukt() {
+        assertThatExceptionOfType(BoekingNietGevondenException.class).isThrownBy(
+                () -> boekingService.annuleerBoeking(Long.MAX_VALUE));
+    }
+    @Test
+    void annuleerBoeking() {
+        var boekingId = idVanTestBoeking1();
+        var festivalId = idVanTestFestival1();
+        boekingService.annuleerBoeking(boekingId);
+        assertThat(countRowsInTableWhere(BOEKINGEN, "id = " + boekingId)).isZero();
+        assertThat(countRowsInTableWhere(FESTIVALS, "ticketsBeschikbaar = 5001 and id = " + festivalId)).isOne();
     }
 }

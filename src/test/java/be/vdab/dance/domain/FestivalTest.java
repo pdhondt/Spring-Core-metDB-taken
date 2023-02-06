@@ -36,4 +36,9 @@ public class FestivalTest {
         assertThatIllegalArgumentException().isThrownBy(
                 () -> testFestival.boekTickets(-1));
     }
+    @Test
+    public void verhoogTickets() {
+        testFestival.verhoogTickets(1);
+        assertThat(testFestival.getTicketsBeschikbaar()).isEqualTo(11);
+    }
 }

@@ -1,6 +1,7 @@
 package be.vdab.dance.console;
 
 import be.vdab.dance.domain.Boeking;
+import be.vdab.dance.exceptions.BoekingNietGevondenException;
 import be.vdab.dance.exceptions.FestivalNietGevondenException;
 import be.vdab.dance.exceptions.OnvoldoendeTicketsBeschikbaarException;
 import be.vdab.dance.services.BoekingService;
@@ -53,8 +54,19 @@ public class MyRunner implements CommandLineRunner {
             System.err.println("Slechts " + ex.getTicketsBeschikbaar() + " tickets beschikbaar. Uw gevraagde aantal" +
                     " tickets (" + aantalTickets + ") kan niet geboekt worden");
         }*/
-        boekingService.findBoekingenMetFestivalNaam().forEach(boekingMetFestivalNaam ->
+        /*boekingService.findBoekingenMetFestivalNaam().forEach(boekingMetFestivalNaam ->
                 System.out.println(boekingMetFestivalNaam.id() + ":" + boekingMetFestivalNaam.naamBoeker() + ":" +
-                        boekingMetFestivalNaam.aantalTickets() + ":" + boekingMetFestivalNaam.naamFestival()));
+                        boekingMetFestivalNaam.aantalTickets() + ":" + boekingMetFestivalNaam.naamFestival()));*/
+        var scanner = new Scanner(System.in);
+        System.out.print("Id van de te annuleren boeking: ");
+        var id = scanner.nextLong();
+        try {
+            boekingService.annuleerBoeking(id);
+            System.out.println("Boeking " + id + " succesvol geannuleerd");
+        } catch (BoekingNietGevondenException ex) {
+            System.err.println("Boeking met id " + id + " niet gevonden");
+        } catch (FestivalNietGevondenException ex) {
+            System.err.println("Festival met id " + ex.getId() + " niet gevonden");
+        }
     }
 }

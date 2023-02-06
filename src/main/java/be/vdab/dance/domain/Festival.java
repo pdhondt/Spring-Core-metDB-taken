@@ -41,4 +41,7 @@ public class Festival {
         }
         ticketsBeschikbaar -= tickets;
     }
+    public void verhoogTickets(int tickets) {
+        ticketsBeschikbaar += tickets;
+    }
 }
