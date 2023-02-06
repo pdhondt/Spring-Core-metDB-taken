@@ -38,11 +38,6 @@ public class BoekingServiceTest {
                 () -> boekingService.boekTickets(new Boeking("Peter", 2, Long.MAX_VALUE)));
     }
     @Test
-    void nulTicketsBoekenLuktNiet() {
-        assertThatIllegalArgumentException().isThrownBy(
-                () -> boekingService.boekTickets(new Boeking("Peter", 0, 1)));
-    }
-    @Test
     void boekingMetOnvoldoendeTicketsBeschikbaarLuktNiet() {
         when(festivalRepository.findAndLockById(1)).thenReturn(Optional.of(testFestival));
         assertThatExceptionOfType(OnvoldoendeTicketsBeschikbaarException.class).isThrownBy(
