@@ -11,7 +11,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @JdbcTest
 @Import(BoekingRepository.class)
-@Sql("/festivals.sql")
+@Sql({"/festivals.sql", "/boekingen.sql"})
 public class BoekingRepositoryTest extends AbstractTransactionalJUnit4SpringContextTests {
     private static final String BOEKINGEN = "boekingen";
     private final BoekingRepository boekingRepository;
@@ -31,5 +31,17 @@ public class BoekingRepositoryTest extends AbstractTransactionalJUnit4SpringCont
         boekingRepository.create(new Boeking("Peter", 4, id));
         assertThat(countRowsInTableWhere(BOEKINGEN, "naam = 'Peter' and aantalTickets = 4 and festivalId = " + id)).isOne();
     }
-
+    @Test
+    void findBoekingenMetFestivalNaam() {
+        var lijstBoekingen = boekingRepository.findBoekingenMetFestivalNaam();
+        assertThat(lijstBoekingen).hasSize(countRowsInTable(BOEKINGEN))
+                .extracting(boekingMetFestivalNaam -> boekingMetFestivalNaam.id()).isSorted();
+        var rijMetTest1Boeking = lijstBoekingen
+                .stream()
+                .filter(boekingMetFestivalNaam -> boekingMetFestivalNaam.naamBoeker().equals("test1"))
+                .findFirst()
+                .get();
+        assertThat(rijMetTest1Boeking.aantalTickets()).isEqualTo(1);
+        assertThat(rijMetTest1Boeking.naamFestival()).isEqualTo("Rock Werchter");
+    }
 }

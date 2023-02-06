@@ -1,11 +1,14 @@
 package be.vdab.dance.services;
 
 import be.vdab.dance.domain.Boeking;
+import be.vdab.dance.dto.BoekingMetFestivalNaam;
 import be.vdab.dance.exceptions.FestivalNietGevondenException;
 import be.vdab.dance.repositories.BoekingRepository;
 import be.vdab.dance.repositories.FestivalRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 @Service
 @Transactional(readOnly = true)
@@ -24,5 +27,8 @@ public class BoekingService {
         festival.boekTickets(boeking.getAantalTickets());
         boekingRepository.create(boeking);
         festivalRepository.update(festival);
+    }
+    public List<BoekingMetFestivalNaam> findBoekingenMetFestivalNaam() {
+        return boekingRepository.findBoekingenMetFestivalNaam();
     }
 }

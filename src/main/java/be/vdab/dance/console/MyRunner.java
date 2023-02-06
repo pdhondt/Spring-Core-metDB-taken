@@ -34,7 +34,7 @@ public class MyRunner implements CommandLineRunner {
         } catch (FestivalNietGevondenException ex) {
             System.err.println("Festival met id " + ex.getId() + " niet gevonden");
         }*/
-        var scanner = new Scanner(System.in);
+        /*var scanner = new Scanner(System.in);
         System.out.print("Naam: ");
         var naam = scanner.nextLine();
         System.out.print("Aantal gewenste tickets: ");
@@ -52,6 +52,9 @@ public class MyRunner implements CommandLineRunner {
         } catch (OnvoldoendeTicketsBeschikbaarException ex) {
             System.err.println("Slechts " + ex.getTicketsBeschikbaar() + " tickets beschikbaar. Uw gevraagde aantal" +
                     " tickets (" + aantalTickets + ") kan niet geboekt worden");
-        }
+        }*/
+        boekingService.findBoekingenMetFestivalNaam().forEach(boekingMetFestivalNaam ->
+                System.out.println(boekingMetFestivalNaam.id() + ":" + boekingMetFestivalNaam.naamBoeker() + ":" +
+                        boekingMetFestivalNaam.aantalTickets() + ":" + boekingMetFestivalNaam.naamFestival()));
     }
 }
