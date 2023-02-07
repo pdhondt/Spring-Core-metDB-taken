@@ -14,9 +14,10 @@ import static org.assertj.core.api.Assertions.*;
 
 @JdbcTest
 @Import(FestivalRepository.class)
-@Sql("/festivals.sql")
+@Sql({"/festivals.sql", "/boekingen.sql"})
 public class FestivalRepositoryTest extends AbstractTransactionalJUnit4SpringContextTests {
     private static final String FESTIVALS = "festivals";
+    private static final String BOEKINGEN = "boekingen";
     private final FestivalRepository festivalRepository;
     public FestivalRepositoryTest(FestivalRepository festivalRepository) {
         this.festivalRepository = festivalRepository;
@@ -89,5 +90,12 @@ public class FestivalRepositoryTest extends AbstractTransactionalJUnit4SpringCon
         assertThatExceptionOfType(FestivalNietGevondenException.class).isThrownBy(
                 () -> festivalRepository.update(new Festival(Long.MAX_VALUE, "testFestival2", 100, BigDecimal.TEN)));
     }
-
+    @Test
+    void findAantalBoekingenPerFestival() {
+        var lijst = festivalRepository.findAantalBoekingenPerFestival();
+        assertThat(lijst).extracting(aantalBoekingenPerFestival -> aantalBoekingenPerFestival.id()).isSorted();
+        var eersteInLijst = lijst.get(0);
+        assertThat(eersteInLijst.aantalBoekingen()).isEqualTo(
+                countRowsInTableWhere(BOEKINGEN, "festivalId = " + eersteInLijst.id()));
+    }
 }

@@ -13,14 +13,14 @@ import java.util.Scanner;
 
 @Component
 public class MyRunner implements CommandLineRunner {
-    /*private final FestivalService festivalService;
+    private final FestivalService festivalService;
     public MyRunner(FestivalService festivalService) {
         this.festivalService = festivalService;
-    }*/
-    private final BoekingService boekingService;
+    }
+    /*private final BoekingService boekingService;
     public MyRunner(BoekingService boekingService) {
         this.boekingService = boekingService;
-    }
+    }*/
     @Override
     public void run(String... args) {
         /*festivalService.findUitverkocht().forEach(festival ->
@@ -57,7 +57,7 @@ public class MyRunner implements CommandLineRunner {
         /*boekingService.findBoekingenMetFestivalNaam().forEach(boekingMetFestivalNaam ->
                 System.out.println(boekingMetFestivalNaam.id() + ":" + boekingMetFestivalNaam.naamBoeker() + ":" +
                         boekingMetFestivalNaam.aantalTickets() + ":" + boekingMetFestivalNaam.naamFestival()));*/
-        var scanner = new Scanner(System.in);
+        /*var scanner = new Scanner(System.in);
         System.out.print("Id van de te annuleren boeking: ");
         var id = scanner.nextLong();
         try {
@@ -67,6 +67,9 @@ public class MyRunner implements CommandLineRunner {
             System.err.println("Boeking met id " + id + " niet gevonden");
         } catch (FestivalNietGevondenException ex) {
             System.err.println("Festival met id " + ex.getId() + " niet gevonden");
-        }
+        }*/
+        festivalService.findAantalBoekingenPerFestival().forEach(
+                aantalBoekingenPerFestival -> System.out.println(aantalBoekingenPerFestival.id() + ":" +
+                        aantalBoekingenPerFestival.naam() + ":" + aantalBoekingenPerFestival.aantalBoekingen()));
     }
 }

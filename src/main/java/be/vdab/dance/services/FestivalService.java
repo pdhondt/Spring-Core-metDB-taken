@@ -1,6 +1,7 @@
 package be.vdab.dance.services;
 
 import be.vdab.dance.domain.Festival;
+import be.vdab.dance.dto.AantalBoekingenPerFestival;
 import be.vdab.dance.exceptions.FestivalNietGevondenException;
 import be.vdab.dance.repositories.FestivalRepository;
 import org.springframework.stereotype.Service;
@@ -48,5 +49,8 @@ public class FestivalService {
         festivalRepository.findAll().forEach(festival ->
                 festivalRepository.verhoogReclameBudgetMetBedrag(festival.getId(), bedrag));
         festivalRepository.delete(id);
+    }
+    public List<AantalBoekingenPerFestival> findAantalBoekingenPerFestival() {
+        return festivalRepository.findAantalBoekingenPerFestival();
     }
 }

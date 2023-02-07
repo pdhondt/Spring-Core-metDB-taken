@@ -1,4 +1,4 @@
 package be.vdab.dance.dto;
 
-public record BoekingMetFestivalNaam(Long id, String naamBoeker, String naamFestival, int aantalTickets) {
+public record BoekingMetFestivalNaam(long id, String naamBoeker, String naamFestival, int aantalTickets) {
 }

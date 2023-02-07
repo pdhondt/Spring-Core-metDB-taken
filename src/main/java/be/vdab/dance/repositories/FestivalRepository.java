@@ -1,6 +1,7 @@
 package be.vdab.dance.repositories;
 
 import be.vdab.dance.domain.Festival;
+import be.vdab.dance.dto.AantalBoekingenPerFestival;
 import be.vdab.dance.exceptions.FestivalNietGevondenException;
 import org.springframework.dao.IncorrectResultSizeDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -109,5 +110,18 @@ public class FestivalRepository {
         if (template.update(sql, festival.getNaam(), festival.getTicketsBeschikbaar(), festival.getId()) == 0) {
             throw new FestivalNietGevondenException(festival.getId());
         }
+    }
+    public List<AantalBoekingenPerFestival> findAantalBoekingenPerFestival() {
+        var sql = """
+                select festivals.id, festivals.naam, count(*) as aantalBoekingen
+                from festivals inner join boekingen
+                on festivals.id = boekingen.festivalId
+                group by festivals.id
+                order by festivals.id;
+                """;
+        RowMapper<AantalBoekingenPerFestival> mapper = (rs, rowNum) ->
+                new AantalBoekingenPerFestival(rs.getLong("id"), rs.getString("naam"),
+                        rs.getInt("aantalBoekingen"));
+        return template.query(sql, mapper);
     }
 }
